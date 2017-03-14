@@ -7,7 +7,6 @@ import io
 
 class VillaDetailSpider(scrapy.Spider):
     name = "villa_details"
-    # site_link = SITE_URL + '/book/authors'
     start_urls = []
 
     with open('data/rent_villas.json', encoding='utf-8') as data_file:
@@ -24,5 +23,5 @@ class VillaDetailSpider(scrapy.Spider):
         villa['city'] = response.css('div.adxViewContainer div.adxHeader div.adxExtraInfo:nth-child(1) div.adxExtraInfoPart:nth-child(1) a::attr(href)').extract_first()
         # villa['short_description'] = hxs.select("//section[@id='bookAuthor']//div[@class='container-fluid authorHeader']//div[@class='authDes']//p[@class='des']/text()").extract_first()
         # villa['image_urls'] = SITE_URL + hxs.select("//section[@id='bookAuthor']//img[@class='authImg']/@src").extract_first()
-        print villa
+        # print villa
         yield villa
