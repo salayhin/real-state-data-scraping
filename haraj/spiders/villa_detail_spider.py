@@ -20,14 +20,32 @@ class VillaDetailSpider(scrapy.Spider):
         hxs = HtmlXPathSelector(response)
 
         villa = RentVilla()
+
+        # not working
+        # villa['created_at'] = response.css('.adxExtraInfoPart:first-child > a::text').extract_first()
+        # villa['id'] = response.css('div.adxViewContainer div.adxHeader h3:nth-child(2) div.adxExtraInfo div.adxExtraInfoPart:nth-child(2)::text').extract_first()
+        # villa['created_at'] = response.css('div.adxViewContainer div.adxHeader h3:nth-child(2) div.adxExtraInfo div.adxExtraInfoPart:nth-child(1)::text').extract_first()
+        # villa['picture_url'] = response.css('div.adxViewContainer div.adxBody img.first-child::attr(src)').extract_first()
+
+        # working
         villa['title'] = response.css('div.adxViewContainer div.adxHeader h3::text').extract_first()
-        villa['city'] = response.css('div.adxViewContainer div.adxHeader div.adxExtraInfo:nth-child(1) div.adxExtraInfoPart:nth-child(1) a::text').extract_first()
-        villa['description'] = response.css('div.adxViewContainer div.adxBody p:nth-child(1)::text').extract_first()
-        villa['description'] = villa['description'] + " " + response.css('div.adxViewContainer div.adxBody p:nth-child(2)::text').extract_first()
-        # villa['short_description'] = hxs.select("//section[@id='bookAuthor']//div[@class='container-fluid authorHeader']//div[@class='authDes']//p[@class='des']/text()").extract_first()
-        # villa['image_urls'] = SITE_URL + hxs.select("//section[@id='bookAuthor']//img[@class='authImg']/@src").extract_first()
+        villa['description'] = response.css('div.adxViewContainer div.adxBody::text').extract_first()
+        villa['description'] = re.sub('\s+',' ',villa['description'])
+        villa['phone'] = response.css('div.adxViewContainer div.adxBody div.contact strong a::text').extract_first()
+        address = response.css('div.metaBody a:nth-child(1)::text').extract_first()
+        self.getCityDis(villa, address)
+
         # print villa
         yield villa
+
+    def getCityDis(self, villa, address):
+        address_titles = ['في', 'حي']
+        addr = re.split(' ', address)
+        addr = addr[1:]
+
+        villa['city'] = " ".join(addr[addr.index(address_titles[0])+1:])
+        villa['district'] = " ".join(addr[1:addr.index(address_titles[0])])
+
 
     def calculate_regex(self, description):
         price_texts = ['‫الف‬' , '‫ألف‬' , '‫مليون‬',  '‫مليون‬']

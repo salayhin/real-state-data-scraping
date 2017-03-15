@@ -11,7 +11,7 @@ import scrapy
 class RentVilla(scrapy.Item):
     title = scrapy.Field()
     description = scrapy.Field()
-    pictures = scrapy.Field()
+    picture_url = scrapy.Field()
     city = scrapy.Field()
     district = scrapy.Field()
     created_at = scrapy.Field()
