@@ -9,13 +9,13 @@ import scrapy
 
 
 class RentVilla(scrapy.Item):
+    id = scrapy.Field()
     title = scrapy.Field()
+    created_at = scrapy.Field()
     description = scrapy.Field()
     picture_url = scrapy.Field()
     city = scrapy.Field()
     district = scrapy.Field()
-    created_at = scrapy.Field()
-    id = scrapy.Field()
     phone = scrapy.Field()
     url = scrapy.Field()
 

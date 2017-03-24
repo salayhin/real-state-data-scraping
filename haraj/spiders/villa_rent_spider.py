@@ -2,14 +2,16 @@
 
 import scrapy, pdb
 from haraj.items import RentVilla
-from haraj.config import SITE_URL
+from haraj.config import SITE_URL_VILLA_RENT, SITE_URL_VILLA_SALE, SITE_URL_APARTMENT_RENT, SITE_URL_APARTMENT_SALE
+from haraj.config import SITE_URL_STORE_RENT, SITE_URL_STORE_SALE, SITE_URL_LAND_SALE
 from scrapy.selector import HtmlXPathSelector
 
 
 class VillaRentSpider(scrapy.Spider):
     name = "rent_villa"
-    site_link = SITE_URL
-    start_urls = [site_link]
+
+    start_urls = [SITE_URL_VILLA_RENT, SITE_URL_VILLA_SALE, SITE_URL_APARTMENT_RENT, SITE_URL_APARTMENT_SALE,
+                  SITE_URL_STORE_RENT, SITE_URL_STORE_SALE, SITE_URL_LAND_SALE]
 
     def parse(self, response):
 

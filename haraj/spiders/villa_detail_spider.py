@@ -29,15 +29,19 @@ class VillaDetailSpider(scrapy.Spider):
         #pdb.set_trace()
         # working
         villa['id'] = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo']//div[@class='adxExtraInfoPart'][position() = (last())]/a/text()").extract_first()).strip()
-        villa['created_at'] = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo'][position() = (last())]//div[position() = (last() - 1)]/text()").extract_first()).strip()
         villa['title'] = response.css('div.adxViewContainer div.adxHeader h3::text').extract_first()
+        villa['created_at'] = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo'][position() = (last())]//div[position() = (last() - 1)]/text()").extract_first()).strip()
+
         villa['description'] = response.css('div.adxViewContainer div.adxBody::text').extract_first()
         villa['description'] = re.sub('\s+',' ',villa['description'])
-        villa['phone'] = response.css('div.adxViewContainer div.adxBody div.contact strong a::text').extract_first()
-        villa['url'] = response.request.url
+
         villa['picture_url'] = hxs.select("//div[@class='adxViewContainer']//div[@class='adxBody']//img/@src").extract_first()
+
         address = response.css('div.metaBody a:nth-child(1)::text').extract_first()
         self.getCityDis(villa, address)
+
+        villa['phone'] = response.css('div.adxViewContainer div.adxBody div.contact strong a::text').extract_first()
+        villa['url'] = response.request.url
 
         # print villa
         yield villa
