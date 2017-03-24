@@ -2,5 +2,6 @@
 /.idea
 *.pyc
 *.json
+*.csv
 /venv
 /haraj/config.py
