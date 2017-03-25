@@ -4,6 +4,8 @@ import scrapy, json, pdb
 from haraj.items import RentVilla
 from scrapy.selector import HtmlXPathSelector
 import re
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 
 class VillaDetailSpider(scrapy.Spider):
@@ -16,6 +18,10 @@ class VillaDetailSpider(scrapy.Spider):
         for data in authors:
             start_urls.append(data['url'])
 
+    def reshape_arabic(self, arabic_string):
+        reshaped_text = arabic_reshaper.reshape(arabic_string)
+        return get_display(reshaped_text)
+
     def parse(self, response):
         hxs = HtmlXPathSelector(response)
 
@@ -26,33 +32,37 @@ class VillaDetailSpider(scrapy.Spider):
         # villa['created_at'] = response.css('div.adxViewContainer div.adxHeader h3:nth-child(2) div.adxExtraInfo div.adxExtraInfoPart:nth-child(1)::text').extract_first()
 
 
-        #pdb.set_trace()
+
         # working
-        villa['id'] = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo']//div[@class='adxExtraInfoPart'][position() = (last())]/a/text()").extract_first()).strip()
-        villa['title'] = response.css('div.adxViewContainer div.adxHeader h3::text').extract_first()
-        villa['created_at'] = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo'][position() = (last())]//div[position() = (last() - 1)]/text()").extract_first()).strip()
+        id = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo']//div[@class='adxExtraInfoPart'][position() = (last())]/a/text()").extract_first()).strip()
+        title = (response.css('div.adxViewContainer div.adxHeader h3::text').extract_first()).strip()
+        created_at = (hxs.select("//div[@class='adxViewContainer']//div[@class='adxHeader']//div[@class='adxExtraInfo'][position() = (last())]//div[position() = (last() - 1)]/text()").extract_first()).strip()
+        description = (response.css('div.adxViewContainer div.adxBody::text').extract_first()).strip()
+        picture_url = hxs.select("//div[@class='adxViewContainer']//div[@class='adxBody']//img/@src").extract_first()
+        address = (response.css('div.metaBody a:nth-child(1)::text').extract_first()).strip()
 
-        villa['description'] = response.css('div.adxViewContainer div.adxBody::text').extract_first()
-        villa['description'] = re.sub('\s+',' ',villa['description'])
+        villa['id'] = self.reshape_arabic(id)
+        villa['title'] = ((self.reshape_arabic(title)).replace("«", "")).strip()
+        villa['created_at'] = self.reshape_arabic(created_at)
+        villa['description'] = description
+        villa['description'] = re.sub('\s+',' ', self.reshape_arabic(villa['description']))
+        villa['picture_url'] = self.reshape_arabic(picture_url)
 
-        villa['picture_url'] = hxs.select("//div[@class='adxViewContainer']//div[@class='adxBody']//img/@src").extract_first()
+        self.getCityDis(villa, self.reshape_arabic(address))
 
-        address = response.css('div.metaBody a:nth-child(1)::text').extract_first()
-        self.getCityDis(villa, address)
-
-        villa['phone'] = response.css('div.adxViewContainer div.adxBody div.contact strong a::text').extract_first()
-        villa['url'] = response.request.url
-
+        villa['phone'] = self.reshape_arabic(response.css('div.adxViewContainer div.adxBody div.contact strong a::text').extract_first())
+        villa['url'] = self.reshape_arabic(response.request.url)
+        pdb.set_trace()
         # print villa
         yield villa
 
     def getCityDis(self, villa, address):
-        address_titles = ['في', 'حي']
+        address_titles = [self.reshape_arabic('في'), 'حي']
         addr = re.split(' ', address)
         addr = addr[1:]
 
-        villa['city'] = " ".join(addr[addr.index(address_titles[0])+1:])
-        villa['district'] = " ".join(addr[1:addr.index(address_titles[0])])
+        villa['city'] = self.reshape_arabic(" ".join(addr[addr.index(address_titles[0])+1:]))
+        villa['district'] = self.reshape_arabic(" ".join(addr[1:addr.index(address_titles[0])]))
 
 
     def calculate_regex(self, description):

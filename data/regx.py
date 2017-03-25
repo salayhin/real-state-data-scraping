@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import re
+import pdb
+import arabic_reshaper
+from bidi.algorithm import get_display
 
+
+def reshape_arabic(arabic_string):
+    reshaped_text = arabic_reshaper.reshape(arabic_string)
+    return get_display(reshaped_text)
 
 description = "45 ألف ريال سعودي 4 غرف نوم 1 مطبخ 4 دورات مياة 1 صالة عرض الشارع 20 متر undefined درج صالة بيت شعر حوش ملحق مدخل سيارة جنوب المساحة 300 متر مربع الأن مع عروض شركة عبر التواصل العقاريه فيلا درج داخلي للايجار تشطيب راقي جدا بالرمال موقع ممتاز قريب من جميع الخدمات السعر ٤٥٠٠٠الف ريال قابل للتفاوض للتواصل :احمد الشومي ٠٥٣٥٤٤٨٤٨٤"
 
@@ -10,7 +17,7 @@ age_texts = ['‫جديد‬', '‫جديدة‬', '‫سنتان‬', '‫سن�
 area_texts = ['‫م‬', '‫متر‬', '2 ‫م‬', '‫المساحة‬']
 room_texts = ['‫غرف‬', '‫الغرف‬ ‫عدد‬', '‫غرفتين‬', '‫غرفتان‬']
 
-splited_description = re.split(' ', description)
+splited_description = re.split(' ', reshape_arabic(description))
 
 des_length = len(splited_description)
 
@@ -33,7 +40,8 @@ for num in numbers:
 
         # check the output, encoding problem
         # second output is False instead of being True
-        print(room_texts[0], checkText, room_texts[0] == checkText)
+        pdb.set_trace()
+        print(reshape_arabic(room_texts[0]), checkText, reshape_arabic(room_texts[0]) == checkText)
 
         if checkText in price_texts:
             result['price'] = (str(num) + " " + checkText)
