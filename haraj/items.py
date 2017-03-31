@@ -18,6 +18,10 @@ class RentVilla(scrapy.Item):
     district = scrapy.Field()
     phone = scrapy.Field()
     url = scrapy.Field()
+    price = scrapy.Field()
+    age = scrapy.Field()
+    area = scrapy.Field()
+    room = scrapy.Field()
 
 
 
